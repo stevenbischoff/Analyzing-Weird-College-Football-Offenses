@@ -1,3 +1,5 @@
+# adapted from:
+# https://blog.collegefootballdata.com/opponent-adjusted-stats-ridge-regression/
 import pandas as pd
 from cfbd.rest import ApiException
 

@@ -5,8 +5,8 @@ from cfbd.rest import ApiException
 
 from config import *
 
-first_year = 2023
-last_year = 2023
+first_year = 2006
+last_year = 2006
 
 df_list = []
 for year in range(first_year, last_year+1): 
@@ -24,10 +24,17 @@ for year in range(first_year, last_year+1):
         season_type = dfCal.loc[i,'season_type'] # get season type from calendar
         # Get play-by-play Data
         api_instance = cfbd.PlaysApi(cfbd.ApiClient(configuration))
-        api_response = api_instance.get_plays(year,week,season_type=season_type)
+        try:
+            api_response = api_instance.get_plays(year,week,season_type=season_type)
+        except:
+            continue
         dfWk = pd.DataFrame().from_records([g.to_dict()for g in api_response])
-        dfPBP_list.append(dfWk)
-        print('PBP data downloaded for '+season_type+' week',week)
+        try:
+            dfWk = pd.concat([dfWk, dfWk['clock'].apply(pd.Series)], axis=1)
+            dfPBP_list.append(dfWk)
+            print('PBP data downloaded for '+season_type+' week',week)
+        except:
+            pass
 
     dfPBP = pd.concat(dfPBP_list).reset_index(drop=True)
     dfPBP.to_csv('data/game_PBP_{}.csv'.format(year), index=False)
